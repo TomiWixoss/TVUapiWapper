@@ -2,7 +2,7 @@
  * TVU Schedule - Thời khóa biểu
  */
 import { Page, useNavigate } from "zmp-ui";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   ArrowLeft,
   Calendar,
@@ -11,6 +11,7 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Loader2,
 } from "lucide-react";
 import { useTvuStore } from "@/stores/tvu-store";
@@ -27,6 +28,9 @@ function TvuSchedulePage() {
     fetchSchedule,
   } = useTvuStore();
   const [selectedWeek, setSelectedWeek] = useState(0);
+  const [selectedSemester, setSelectedSemester] = useState<number | null>(null);
+  const [showSemesterPicker, setShowSemesterPicker] = useState(false);
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -38,26 +42,36 @@ function TvuSchedulePage() {
     }
   }, [isLoggedIn, semesters, fetchSemesters, navigate]);
 
+  // Set default semester when semesters loaded
   useEffect(() => {
-    if (semesters && !currentSchedule) {
-      fetchSchedule(semesters.hocKyHienTai);
+    if (semesters && !selectedSemester) {
+      setSelectedSemester(semesters.hocKyHienTai);
     }
-  }, [semesters, currentSchedule, fetchSchedule]);
+  }, [semesters, selectedSemester]);
 
-  // Find current week
+  // Fetch schedule when semester changes
   useEffect(() => {
-    if (currentSchedule?.danhSachTuan) {
+    if (selectedSemester && semesters) {
+      hasInitialized.current = false;
+      fetchSchedule(selectedSemester);
+    }
+  }, [selectedSemester, semesters, fetchSchedule]);
+
+  // Find current week - chỉ chạy 1 lần khi schedule load xong
+  useEffect(() => {
+    if (currentSchedule?.danhSachTuan && !hasInitialized.current) {
+      hasInitialized.current = true;
       const today = new Date();
       const currentWeekIndex = currentSchedule.danhSachTuan.findIndex(
         (week) => {
-          const start = new Date(week.ngayBatDau);
-          const end = new Date(week.ngayKetThuc);
+          const [d1, m1, y1] = week.ngayBatDau.split("/");
+          const [d2, m2, y2] = week.ngayKetThuc.split("/");
+          const start = new Date(+y1, +m1 - 1, +d1);
+          const end = new Date(+y2, +m2 - 1, +d2, 23, 59, 59);
           return today >= start && today <= end;
         }
       );
-      if (currentWeekIndex >= 0) {
-        setSelectedWeek(currentWeekIndex);
-      }
+      setSelectedWeek(currentWeekIndex >= 0 ? currentWeekIndex : 0);
     }
   }, [currentSchedule]);
 
@@ -115,15 +129,50 @@ function TvuSchedulePage() {
           >
             <ArrowLeft className="w-5 h-5 text-white" />
           </button>
-          <div>
+          <div className="flex-1">
             <h1 className="font-bold text-xl text-white">Thời khóa biểu</h1>
-            <p className="text-white/80 text-sm">
-              {semesters?.danhSachHocKy?.find(
-                (s) => s.maHocKy === semesters.hocKyHienTai
-              )?.tenHocKy || "Học kỳ hiện tại"}
-            </p>
+            {/* Semester Picker */}
+            <button
+              onClick={() => setShowSemesterPicker(!showSemesterPicker)}
+              className="flex items-center gap-1 text-white/90 text-sm mt-1"
+            >
+              <span>
+                {semesters?.danhSachHocKy?.find(
+                  (s) => s.maHocKy === selectedSemester
+                )?.tenHocKy || "Chọn học kỳ"}
+              </span>
+              <ChevronDown className="w-4 h-4" />
+            </button>
           </div>
         </div>
+
+        {/* Semester Dropdown */}
+        {showSemesterPicker && semesters?.danhSachHocKy && (
+          <div className="mb-3 bg-white/20 rounded-xl p-2 max-h-48 overflow-y-auto">
+            {semesters.danhSachHocKy.map((sem) => (
+              <button
+                key={sem.maHocKy}
+                onClick={() => {
+                  setSelectedSemester(sem.maHocKy);
+                  setShowSemesterPicker(false);
+                  setSelectedWeek(0);
+                }}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm ${
+                  selectedSemester === sem.maHocKy
+                    ? "bg-white/30 text-white font-bold"
+                    : "text-white/80 hover:bg-white/10"
+                }`}
+              >
+                {sem.tenHocKy}
+                {sem.maHocKy === semesters.hocKyHienTai && (
+                  <span className="ml-2 text-xs bg-white/30 px-2 py-0.5 rounded-full">
+                    Hiện tại
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Week Selector */}
         {weeks.length > 0 && (
