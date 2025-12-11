@@ -301,19 +301,11 @@ export const useTvuStore = create<TvuState>()(
     {
       name: "tvu-storage",
       partialize: (state) => ({
-        // Auth
+        // Chỉ lưu credentials - không cache data
         isLoggedIn: state.isLoggedIn,
         userId: state.userId,
         userName: state.userName,
         password: state.password,
-        // Cache all data
-        studentInfo: state.studentInfo,
-        semesters: state.semesters,
-        currentSchedule: state.currentSchedule,
-        grades: state.grades,
-        tuition: state.tuition,
-        curriculum: state.curriculum,
-        notifications: state.notifications,
       }),
     }
   )

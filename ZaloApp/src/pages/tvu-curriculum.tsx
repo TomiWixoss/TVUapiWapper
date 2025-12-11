@@ -110,11 +110,11 @@ function TvuCurriculumPage() {
                         isExpanded ? null : semester.thuTuHocKy
                       )
                     }
-                    className="w-full p-4 flex items-center justify-between"
+                    className="w-full p-3 flex items-center justify-between"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
                         style={{
                           background:
                             progress === 100
@@ -124,30 +124,28 @@ function TvuCurriculumPage() {
                       >
                         {semester.thuTuHocKy}
                       </div>
-                      <div className="text-left">
-                        <p className="font-bold text-foreground">
+                      <div className="text-left flex-1 min-w-0">
+                        <p className="font-bold text-foreground text-sm truncate">
                           {semester.tenHocKy}
                         </p>
-                        <p className="text-xs text-[var(--muted-foreground)]">
-                          {semester.tienDo} môn hoàn thành
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-16">
-                        <div className="h-2 bg-[var(--secondary)] rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-[var(--duo-green)] rounded-full"
-                            style={{ width: `${progress}%` }}
-                          />
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="flex-1 h-1.5 bg-[var(--secondary)] rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-[var(--duo-green)] rounded-full"
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] text-[var(--muted-foreground)] flex-shrink-0">
+                            {completedCount}/{totalCount}
+                          </span>
                         </div>
                       </div>
-                      {isExpanded ? (
-                        <ChevronUp className="w-5 h-5 text-[var(--muted-foreground)]" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-[var(--muted-foreground)]" />
-                      )}
                     </div>
+                    {isExpanded ? (
+                      <ChevronUp className="w-5 h-5 text-[var(--muted-foreground)] flex-shrink-0 ml-2" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-[var(--muted-foreground)] flex-shrink-0 ml-2" />
+                    )}
                   </button>
 
                   {/* Subjects */}

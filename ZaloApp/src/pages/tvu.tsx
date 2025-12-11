@@ -43,8 +43,12 @@ function TvuDashboard() {
     }
   }, [isLoggedIn, navigate]);
 
-  // Không tự động fetch - chỉ fetch khi bấm nút reload
-  // Data được cache trong localStorage
+  // Auto fetch data khi vào app (không có cache)
+  useEffect(() => {
+    if (isLoggedIn && !studentInfo && !isLoading) {
+      fetchAllData();
+    }
+  }, [isLoggedIn, studentInfo, isLoading, fetchAllData]);
 
   const handleLogout = () => {
     logout();
