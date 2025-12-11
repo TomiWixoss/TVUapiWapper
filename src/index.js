@@ -9,24 +9,18 @@ import { availableTools } from "./tools/index.js";
 const app = express();
 app.use(express.json());
 
-// Health check endpoint
+// Health check endpoint cho UptimeRobot
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
+// Info endpoint
 app.get("/", (req, res) => {
   res.json({
     status: "running",
     message: "TVU Firebase Backend",
+    uptime: Math.floor(process.uptime()) + "s",
     availableTools,
-    usage: {
-      description:
-        "Gửi command vào Firebase Realtime Database tại /commands/{id}",
-      format: {
-        action: "tên tool (vd: tvuLogin, tvuGrades...)",
-        params: "object chứa các tham số",
-      },
-      example: {
-        action: "tvuLogin",
-        params: { username: "MSSV", password: "matkhau" },
-      },
-    },
   });
 });
 
