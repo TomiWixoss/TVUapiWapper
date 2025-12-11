@@ -47,7 +47,7 @@ function TvuTuitionPage() {
       >
         <div className="flex items-center gap-3 mb-4">
           <button
-            onClick={() => navigate("/tvu")}
+            onClick={() => navigate("/tvu-settings")}
             className="btn-back-3d w-10 h-10 flex items-center justify-center"
           >
             <ArrowLeft className="w-5 h-5 text-white" />

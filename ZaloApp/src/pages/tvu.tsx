@@ -184,8 +184,8 @@ function TvuDashboard() {
         <div className="bg-white/15 backdrop-blur rounded-2xl p-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-14 h-14 rounded-xl bg-white/20 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold text-white">{gpa4}</span>
+              <div className="w-14 h-14 rounded-xl bg-white/20 flex flex-col items-center justify-center px-1">
+                <span className="text-xl font-bold text-white">{gpa4}</span>
                 <span className="text-[8px] text-white/70">GPA</span>
               </div>
               <div>

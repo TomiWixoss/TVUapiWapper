@@ -277,8 +277,10 @@ export const useTvuStore = create<TvuState>()(
           ensureLoggedIn,
           fetchStudentInfo,
           fetchSemesters,
+          fetchSchedule,
           fetchGrades,
           fetchTuition,
+          fetchCurriculum,
           fetchNotifications,
         } = get();
 
@@ -286,12 +288,16 @@ export const useTvuStore = create<TvuState>()(
         set({ isLoading: true, loadingAction: "Đang kết nối..." });
         await ensureLoggedIn();
 
-        // Fetch in parallel
+        // Fetch semesters first (needed for schedule)
+        await fetchSemesters();
+
+        // Fetch rest in parallel
         await Promise.all([
           fetchStudentInfo(),
-          fetchSemesters(),
+          fetchSchedule(),
           fetchGrades(),
           fetchTuition(),
+          fetchCurriculum(),
           fetchNotifications(),
         ]);
       },

@@ -42,7 +42,7 @@ function TvuCurriculumPage() {
       <div className="pt-16 pb-6 px-4 bg-gradient-to-r from-[var(--duo-purple)] to-[var(--duo-blue)]">
         <div className="flex items-center gap-3 mb-4">
           <button
-            onClick={() => navigate("/tvu")}
+            onClick={() => navigate("/tvu-settings")}
             className="btn-back-3d w-10 h-10 flex items-center justify-center"
           >
             <ArrowLeft className="w-5 h-5 text-white" />
