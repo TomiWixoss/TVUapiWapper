@@ -24,7 +24,7 @@ export const useThemeStore = create<ThemeState>()(
       },
     }),
     {
-      name: "quiz-theme",
+      name: "tvu-theme",
       onRehydrateStorage: () => (state) => {
         if (state) {
           applyTheme(state.theme);

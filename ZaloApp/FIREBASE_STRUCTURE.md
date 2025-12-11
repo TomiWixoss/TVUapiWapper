@@ -1,222 +1,152 @@
-# Cấu trúc Firebase cho Quiz QTDA
+# Cấu trúc Firebase cho TVU Student App
 
-## Collections
+## Realtime Database
 
-### 1. users
+### /commands/{commandId}
 
-Lưu thông tin người dùng
+Gửi lệnh đến backend để gọi TVU API
 
 ```json
 {
-  "oderId": "string - Zalo user ID",
-  "odername": "string - Tên người dùng",
-  "avatar": "string - URL avatar",
-  "totalScore": "number - Sync với conquestStats.rankPoints",
-  "totalCorrect": "number",
-  "totalWrong": "number",
-  "totalQuizzes": "number",
-  "streak": "number",
-  "lastPlayDate": "string - ISO date",
-  "level": "number",
-  "exp": "number",
-  "badges": "string[]",
-  "chapterProgress": {
-    "[chapterId]": {
-      "completed": "number",
-      "correct": "number",
-      "bestScore": "number",
-      "lastAttempt": "string",
-      "stars": "number (0-3)",
-      "locked": "boolean",
-      "isCompleted": "boolean"
-    }
+  "action": "tvuLogin | tvuStudentInfo | tvuSemesters | tvuSchedule | tvuGrades | tvuTuition | tvuCurriculum | tvuNotifications",
+  "params": {
+    "userId": "string - MSSV (bắt buộc cho các action khác tvuLogin)",
+    "username": "string - MSSV (cho tvuLogin)",
+    "password": "string - Mật khẩu (cho tvuLogin)",
+    "hocKy": "number - Mã học kỳ (cho tvuSchedule)",
+    "limit": "number - Số lượng (cho tvuNotifications)"
   },
-  "hearts": "number (0-5)",
-  "maxHearts": "number (default 5)",
-  "lastHeartRefill": "string - ISO date",
-  "gems": "number",
-  "dailyGoal": "number (default 50)",
-  "dailyProgress": "number",
-  "achievements": "string[] - achievement IDs",
-  "totalPlayTime": "number",
-  "perfectLessons": "number",
-  "longestStreak": "number",
-  "conquestStats": {
-    "rankPoints": "number - Điểm rank hiện tại",
-    "highestRankId": "string - Rank cao nhất đạt được",
-    "totalConquests": "number - Tổng số trận đã chơi",
-    "totalConquestCorrect": "number - Tổng câu đúng trong Chinh Chiến",
-    "totalConquestWrong": "number - Tổng câu sai trong Chinh Chiến",
-    "bestWinStreak": "number - Chuỗi thắng tốt nhất",
-    "currentWinStreak": "number - Chuỗi thắng hiện tại",
-    "lastConquestDate": "string - ISO date"
+  "status": "pending | processing | completed | error",
+  "response": {
+    "success": "boolean",
+    "data": "object - Dữ liệu trả về",
+    "error": "string - Thông báo lỗi nếu có"
   },
-  "questProgress": {
-    "dailyCorrect": "number - Số câu đúng hôm nay",
-    "dailyQuizzes": "number - Số quiz hoàn thành hôm nay",
-    "dailyDate": "string - Ngày hiện tại (để reset)",
-    "weeklyXP": "number - XP kiếm được trong tuần",
-    "weeklyPerfect": "number - Số quiz 100% trong tuần",
-    "weeklyStartDate": "string - Ngày bắt đầu tuần (để reset)",
-    "claimedDailyQuests": "string[] - ID nhiệm vụ ngày đã nhận",
-    "claimedWeeklyQuests": "string[] - ID nhiệm vụ tuần đã nhận"
-  },
-  "claimedAchievementRewards": "string[] - ID thành tựu đã nhận thưởng",
-  "claimedMails": "string[] - ID thư đã nhận",
-  "usedRedeemCodes": "string[] - ID mã đã sử dụng",
-  "lastSpinTime": "string - ISO date - Lần quay cuối",
-  "minigameStats": {
-    "spin": {
-      "totalSpins": "number - Tổng số lần quay",
-      "totalGemsEarned": "number - Tổng gems nhận từ quay",
-      "lastSpinTime": "string - ISO date"
-    },
-    "caro": {
-      "gamesPlayed": "number - Tổng số ván đã chơi",
-      "wins": "number - Số ván thắng",
-      "losses": "number - Số ván thua",
-      "totalGemsEarned": "number - Tổng gems nhận từ Caro",
-      "bestDifficulty": "string - Độ khó cao nhất đã thắng"
-    },
-    "memory": {
-      "gamesPlayed": "number - Tổng số ván đã chơi",
-      "wins": "number - Số ván thắng",
-      "totalGemsEarned": "number - Tổng gems nhận từ Memory",
-      "bestTime": "number - Thời gian còn lại tốt nhất khi thắng"
-    },
-    "game2048": {
-      "gamesPlayed": "number - Tổng số ván đã chơi",
-      "wins": "number - Số lần đạt 2048",
-      "totalGemsEarned": "number - Tổng gems nhận từ 2048",
-      "bestTile": "number - Tile cao nhất đạt được",
-      "bestScore": "number - Điểm cao nhất"
-    }
+  "createdAt": "timestamp",
+  "processedAt": "timestamp",
+  "completedAt": "timestamp"
+}
+```
+
+## Các Action hỗ trợ
+
+### 1. tvuLogin
+
+Đăng nhập TVU Student Portal
+
+**Params:**
+
+- `username`: MSSV
+- `password`: Mật khẩu
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Đăng nhập thành công!",
+    "userId": "123456",
+    "userName": "Nguyễn Văn A",
+    "tokenType": "Bearer",
+    "expiresIn": 3600
   }
 }
 ```
 
-### 2. conquestSessions
+### 2. tvuStudentInfo
 
-Lưu lịch sử các phiên Chinh Chiến
+Lấy thông tin sinh viên
 
-```json
-{
-  "oderId": "string - Zalo user ID",
-  "startTime": "string - ISO date",
-  "endTime": "string - ISO date",
-  "rankBefore": "string - Rank ID trước khi chơi",
-  "rankAfter": "string - Rank ID sau khi chơi",
-  "pointsBefore": "number - Điểm trước khi chơi",
-  "pointsAfter": "number - Điểm sau khi chơi",
-  "pointsGained": "number - Điểm thay đổi (có thể âm)",
-  "correctCount": "number - Số câu đúng",
-  "wrongCount": "number - Số câu sai",
-  "totalQuestions": "number - Tổng số câu hỏi",
-  "accuracy": "number - Độ chính xác (%)"
-}
-```
+**Params:**
 
-**Ví dụ:**
+- `userId`: MSSV đã đăng nhập
+
+**Response:**
 
 ```json
 {
-  "oderId": "user123",
-  "startTime": "2024-12-11T10:00:00.000Z",
-  "endTime": "2024-12-11T10:15:00.000Z",
-  "rankBefore": "bronze_3",
-  "rankAfter": "bronze_4",
-  "pointsBefore": 250,
-  "pointsAfter": 320,
-  "pointsGained": 70,
-  "correctCount": 8,
-  "wrongCount": 2,
-  "totalQuestions": 10,
-  "accuracy": 80
-}
-```
-
-### 3. mails
-
-Hòm thư - gửi quà cho tất cả người dùng
-
-```json
-{
-  "title": "string - Tiêu đề thư",
-  "content": "string - Nội dung thư",
-  "reward": "number - Số gems thưởng",
-  "active": "boolean - Còn hiệu lực không",
-  "createdAt": "string - ISO date"
-}
-```
-
-**Ví dụ:**
-
-```json
-{
-  "title": "Chào mừng bạn mới!",
-  "content": "Cảm ơn bạn đã tham gia Quiz QTDA. Đây là quà chào mừng dành cho bạn!",
-  "reward": 50,
-  "active": true,
-  "createdAt": "2024-12-10T00:00:00.000Z"
-}
-```
-
-### 4. redeemCodes
-
-Mã đổi thưởng
-
-```json
-{
-  "code": "string - Mã đổi thưởng (uppercase)",
-  "reward": "number - Số gems thưởng",
-  "usageLimit": "number - Giới hạn số lần sử dụng (null = không giới hạn)",
-  "usedCount": "number - Số lần đã sử dụng",
-  "active": "boolean - Còn hiệu lực không",
-  "expiresAt": "string - ISO date (optional)"
-}
-```
-
-**Ví dụ:**
-
-```json
-{
-  "code": "QTDA2024",
-  "reward": 100,
-  "usageLimit": 1000,
-  "usedCount": 0,
-  "active": true,
-  "expiresAt": "2025-01-01T00:00:00.000Z"
-}
-```
-
-## Firestore Rules (Gợi ý)
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Users - chỉ đọc/ghi document của chính mình
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Conquest Sessions - user chỉ đọc/ghi session của mình
-    match /conquestSessions/{sessionId} {
-      allow read: if request.auth != null && resource.data.oderId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.oderId == request.auth.uid;
-    }
-
-    // Mails - chỉ đọc
-    match /mails/{mailId} {
-      allow read: if true;
-      allow write: if false; // Chỉ admin ghi qua console
-    }
-
-    // Redeem codes - đọc và update usedCount
-    match /redeemCodes/{codeId} {
-      allow read: if true;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedCount']);
-    }
+  "success": true,
+  "data": {
+    "maSV": "123456",
+    "hoTen": "Nguyễn Văn A",
+    "gioiTinh": "Nam",
+    "ngaySinh": "01/01/2000",
+    "noiSinh": "Trà Vinh",
+    "lop": "CNTT01",
+    "khoa": "Công nghệ thông tin",
+    "nganh": "Công nghệ thông tin",
+    "chuyenNganh": "Kỹ thuật phần mềm",
+    "khoaHoc": "2020-2024",
+    "heDaoTao": "Đại học chính quy",
+    "email": "example@tvu.edu.vn",
+    "dienThoai": "0123456789",
+    "soCMND": "123456789",
+    "trangThai": "Đang học"
   }
 }
+```
+
+### 3. tvuSemesters
+
+Lấy danh sách học kỳ
+
+### 4. tvuSchedule
+
+Lấy thời khóa biểu theo học kỳ
+
+**Params:**
+
+- `userId`: MSSV
+- `hocKy`: Mã học kỳ (VD: 20241)
+
+### 5. tvuGrades
+
+Lấy bảng điểm toàn bộ
+
+### 6. tvuTuition
+
+Lấy thông tin học phí
+
+### 7. tvuCurriculum
+
+Lấy chương trình đào tạo
+
+### 8. tvuNotifications
+
+Lấy thông báo từ nhà trường
+
+**Params:**
+
+- `userId`: MSSV
+- `limit`: Số lượng (mặc định 20)
+
+## Flow hoạt động
+
+1. **Client (Zalo Mini App)** gửi command vào `/commands/{id}` với `status: pending`
+2. **Backend (Express)** lắng nghe `child_added` event
+3. Backend cập nhật `status: processing` và gọi TVU API
+4. Backend cập nhật `status: completed/error` và ghi `response`
+5. Client nhận response qua `onValue` listener
+
+## Ví dụ sử dụng từ Client
+
+```typescript
+import { sendTvuCommand } from "@/services/tvu-api";
+
+// Đăng nhập
+const loginResult = await sendTvuCommand("tvuLogin", {
+  username: "123456",
+  password: "matkhau",
+});
+
+// Lấy thông tin sinh viên
+const infoResult = await sendTvuCommand("tvuStudentInfo", {
+  userId: "123456",
+});
+
+// Lấy bảng điểm
+const gradesResult = await sendTvuCommand("tvuGrades", {
+  userId: "123456",
+});
 ```

@@ -1,28 +1,28 @@
 import { useLocation, useNavigate } from "zmp-ui";
-import { Home, Trophy, Target, Gift, User } from "lucide-react";
+import { Home, Calendar, BookOpen, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useConquestStore } from "@/stores/conquest-store";
+import { useTvuStore } from "@/stores/tvu-store";
 
 const navItems = [
-  { path: "/", icon: Home, label: "Trang chủ" },
-  { path: "/leaderboard", icon: Trophy, label: "Xếp hạng" },
-  { path: "/quests", icon: Target, label: "Nhiệm vụ" },
-  { path: "/shop", icon: Gift, label: "Cửa hàng" },
-  { path: "/settings", icon: User, label: "Tôi" },
+  { path: "/tvu", icon: Home, label: "Trang chủ" },
+  { path: "/tvu-schedule", icon: Calendar, label: "Lịch học" },
+  { path: "/tvu-grades", icon: BookOpen, label: "Điểm" },
+  { path: "/tvu-settings", icon: User, label: "Tôi" },
 ];
 
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isActive: isConquestActive } = useConquestStore();
+  const { isLoggedIn } = useTvuStore();
 
-  // Hide on quiz, minigame pages, and during conquest quiz
+  // Hide on login page or if not logged in
   if (
-    location.pathname === "/quiz" ||
-    location.pathname === "/minigame" ||
-    (location.pathname === "/conquest" && isConquestActive)
-  )
+    location.pathname === "/" ||
+    location.pathname === "/tvu-login" ||
+    !isLoggedIn
+  ) {
     return null;
+  }
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
@@ -39,14 +39,14 @@ export function BottomNav() {
                 className={cn(
                   "flex-1 flex flex-col items-center gap-0.5 py-2 rounded-xl min-w-0",
                   isActive
-                    ? "text-[var(--duo-green)]"
+                    ? "text-[var(--duo-blue)]"
                     : "text-[var(--muted-foreground)]"
                 )}
               >
                 <div
                   className={cn(
                     "p-1.5 rounded-xl",
-                    isActive && "bg-[var(--duo-green)]/20"
+                    isActive && "bg-[var(--duo-blue)]/20"
                   )}
                 >
                   <Icon className="w-5 h-5" />
