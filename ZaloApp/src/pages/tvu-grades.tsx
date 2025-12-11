@@ -3,14 +3,7 @@
  */
 import { Page, useNavigate } from "zmp-ui";
 import { useEffect, useState } from "react";
-import {
-  ArrowLeft,
-  BookOpen,
-  Award,
-  ChevronDown,
-  ChevronUp,
-  Loader2,
-} from "lucide-react";
+import { BookOpen, Award, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { useTvuStore } from "@/stores/tvu-store";
 
 function TvuGradesPage() {
@@ -58,18 +51,10 @@ function TvuGradesPage() {
       )}
 
       {/* Header */}
-      <div className="pt-16 pb-6 px-4 bg-gradient-to-r from-[var(--duo-yellow)] to-[var(--duo-orange)]">
-        <div className="flex items-center gap-3 mb-4">
-          <button
-            onClick={() => navigate("/tvu")}
-            className="btn-back-3d w-10 h-10 flex items-center justify-center"
-          >
-            <ArrowLeft className="w-5 h-5 text-white" />
-          </button>
-          <div>
-            <h1 className="font-bold text-xl text-white">Bảng điểm</h1>
-            <p className="text-white/80 text-sm">Kết quả học tập của bạn</p>
-          </div>
+      <div className="pt-14 pb-6 px-4 bg-gradient-to-r from-[var(--duo-yellow)] to-[var(--duo-orange)]">
+        <div className="mb-4">
+          <h1 className="font-bold text-xl text-white">Bảng điểm</h1>
+          <p className="text-white/80 text-sm">Kết quả học tập của bạn</p>
         </div>
 
         {/* GPA Summary */}

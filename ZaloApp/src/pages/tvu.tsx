@@ -1,5 +1,6 @@
 /**
  * TVU Dashboard - Trang chính TVU Student Portal
+ * UI thống kê xịn với Duolingo style
  */
 import { Page, useNavigate } from "zmp-ui";
 import { useEffect, useMemo } from "react";
@@ -9,11 +10,13 @@ import {
   RefreshCw,
   Clock,
   MapPin,
-  AlertCircle,
-  TrendingUp,
-  Award,
-  Target,
-  Bell,
+  AlertTriangle,
+  Calendar,
+  BookOpen,
+  Trophy,
+  Flame,
+  Star,
+  ChevronRight,
 } from "lucide-react";
 import { useTvuStore } from "@/stores/tvu-store";
 
@@ -23,7 +26,6 @@ function TvuDashboard() {
     isLoggedIn,
     userName,
     studentInfo,
-    semesters,
     currentSchedule,
     grades,
     tuition,
@@ -34,42 +36,31 @@ function TvuDashboard() {
     fetchAllData,
   } = useTvuStore();
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!isLoggedIn) {
       navigate("/tvu-login");
     }
   }, [isLoggedIn, navigate]);
 
-  // Auto fetch data khi vào app (không có cache)
   useEffect(() => {
     if (isLoggedIn && !studentInfo && !isLoading) {
       fetchAllData();
     }
   }, [isLoggedIn, studentInfo, isLoading, fetchAllData]);
 
-  // Calculate stats
+  // Stats
   const latestSemester = grades?.danhSachHocKy?.[0];
-  const gpa4 = latestSemester?.diemTBTichLuy?.he4 || "--";
+  const gpa4 = parseFloat(latestSemester?.diemTBTichLuy?.he4 || "0");
   const gpa10 = latestSemester?.diemTBTichLuy?.he10 || "--";
-  const totalCredits = latestSemester?.tinChiTichLuy || "--";
+  const totalCredits = parseInt(latestSemester?.tinChiTichLuy || "0");
   const semesterGpa = latestSemester?.diemTBHocKy?.he4 || "--";
-
-  // Curriculum progress
-  const curriculumProgress = curriculum?.tienDoTongThe || "0%";
-  const progressPercent = parseInt(curriculumProgress) || 0;
-
-  // Unread notifications
+  const progressPercent = parseInt(curriculum?.tienDoTongThe || "0");
   const unreadCount = notifications?.soThongBaoChuaDoc || 0;
-
-  // Debt
-  const debt = tuition?.tongConNo || "0 VNĐ";
   const hasDebt = (tuition?.tongConNoRaw || 0) > 0;
 
-  // Get today's schedule
+  // Today's schedule
   const todaySchedule = useMemo(() => {
     if (!currentSchedule?.danhSachTuan) return [];
-
     const today = new Date();
     const dayNames = [
       "Chủ nhật",
@@ -81,7 +72,6 @@ function TvuDashboard() {
       "Thứ 7",
     ];
     const todayName = dayNames[today.getDay()];
-
     const currentWeek = currentSchedule.danhSachTuan.find((week) => {
       const [d1, m1, y1] = week.ngayBatDau.split("/");
       const [d2, m2, y2] = week.ngayKetThuc.split("/");
@@ -89,15 +79,12 @@ function TvuDashboard() {
       const end = new Date(+y2, +m2 - 1, +d2, 23, 59, 59);
       return today >= start && today <= end;
     });
-
     if (!currentWeek?.lichHoc) return [];
-
     return currentWeek.lichHoc
       .filter((item) => item.thu === todayName)
       .sort((a, b) => a.tietBatDau - b.tietBatDau);
   }, [currentSchedule]);
 
-  // Get current week number
   const currentWeekNum = useMemo(() => {
     if (!currentSchedule?.danhSachTuan) return null;
     const today = new Date();
@@ -111,32 +98,41 @@ function TvuDashboard() {
     return week?.tuanHocKy || null;
   }, [currentSchedule]);
 
-  const getTodayName = () => {
-    const days = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
-    return days[new Date().getDay()];
+  const getGpaColor = (gpa: number) => {
+    if (gpa >= 3.6) return "var(--duo-green)";
+    if (gpa >= 3.2) return "var(--duo-blue)";
+    if (gpa >= 2.5) return "var(--duo-yellow)";
+    if (gpa >= 2.0) return "var(--duo-orange)";
+    return "var(--duo-red)";
   };
 
-  const formatDate = () => {
+  const getGpaLabel = (gpa: number) => {
+    if (gpa >= 3.6) return "Xuất sắc";
+    if (gpa >= 3.2) return "Giỏi";
+    if (gpa >= 2.5) return "Khá";
+    if (gpa >= 2.0) return "Trung bình";
+    return "Cần cố gắng";
+  };
+
+  const getTodayStr = () => {
+    const days = [
+      "Chủ nhật",
+      "Thứ 2",
+      "Thứ 3",
+      "Thứ 4",
+      "Thứ 5",
+      "Thứ 6",
+      "Thứ 7",
+    ];
     const today = new Date();
-    return `${today.getDate()}/${today.getMonth() + 1}`;
+    return `${days[today.getDay()]}, ${today.getDate()}/${
+      today.getMonth() + 1
+    }`;
   };
-
-  // Get GPA rating
-  const getGpaRating = (gpa: string) => {
-    const g = parseFloat(gpa);
-    if (isNaN(g)) return { text: "--", color: "var(--muted-foreground)" };
-    if (g >= 3.6) return { text: "Xuất sắc", color: "var(--duo-green)" };
-    if (g >= 3.2) return { text: "Giỏi", color: "var(--duo-blue)" };
-    if (g >= 2.5) return { text: "Khá", color: "var(--duo-yellow)" };
-    if (g >= 2.0) return { text: "TB", color: "var(--duo-orange)" };
-    return { text: "Yếu", color: "var(--duo-red)" };
-  };
-
-  const gpaRating = getGpaRating(gpa4);
 
   return (
     <Page className="bg-background min-h-screen">
-      {/* Loading Overlay */}
+      {/* Loading */}
       {isLoading && !studentInfo && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div className="bg-[var(--card)] rounded-2xl p-6 flex flex-col items-center gap-3">
@@ -149,187 +145,220 @@ function TvuDashboard() {
       )}
 
       {/* Header */}
-      <div className="pt-12 pb-4 px-4 bg-gradient-to-br from-[var(--duo-blue)] to-[var(--duo-purple)]">
-        <div className="flex items-center justify-between mb-3">
+      <div className="bg-[var(--card)] border-b-2 border-[var(--border)] pt-14 pb-3 px-4">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--duo-blue)] to-[var(--duo-purple)] flex items-center justify-center text-white font-bold">
+              {studentInfo?.hoTen?.charAt(0) || "S"}
             </div>
             <div>
-              <p className="text-white/70 text-[10px]">Xin chào,</p>
-              <h1 className="text-sm font-bold text-white leading-tight">
+              <h1 className="font-bold text-foreground text-sm">
                 {studentInfo?.hoTen || userName || "Sinh viên TVU"}
               </h1>
-              <p className="text-white/60 text-[10px]">
+              <p className="text-[10px] text-[var(--muted-foreground)]">
                 {studentInfo?.maSV} • {studentInfo?.lop}
               </p>
             </div>
           </div>
           <button
             onClick={() => fetchAllData()}
-            className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center"
+            className="w-9 h-9 rounded-xl bg-[var(--secondary)] flex items-center justify-center"
           >
-            <RefreshCw className="w-4 h-4 text-white" />
+            <RefreshCw className="w-4 h-4 text-[var(--muted-foreground)]" />
           </button>
-        </div>
-
-        {/* GPA Card */}
-        <div className="bg-white/15 backdrop-blur rounded-2xl p-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-14 h-14 rounded-xl bg-white/20 flex flex-col items-center justify-center px-1">
-                <span className="text-xl font-bold text-white">{gpa4}</span>
-                <span className="text-[8px] text-white/70">GPA</span>
-              </div>
-              <div>
-                <p
-                  className="text-sm font-bold"
-                  style={{ color: gpaRating.color }}
-                >
-                  {gpaRating.text}
-                </p>
-                <p className="text-white/70 text-[10px]">
-                  Điểm TB hệ 10: {gpa10}
-                </p>
-                <p className="text-white/70 text-[10px]">
-                  HK này: {semesterGpa} (hệ 4)
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-xl font-bold text-white">{totalCredits}</p>
-              <p className="text-[10px] text-white/70">tín chỉ</p>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="px-4 py-3 pb-28">
-        {/* Alert: Debt */}
+      <div className="px-4 py-4 pb-28 space-y-4">
+        {/* Alert */}
         {hasDebt && (
-          <div className="mb-3 p-3 rounded-xl bg-[var(--duo-red)]/10 border border-[var(--duo-red)]/30 flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-[var(--duo-red)] flex-shrink-0" />
+          <div className="p-3 rounded-2xl bg-[var(--duo-red)]/10 border-2 border-[var(--duo-red)]/20 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[var(--duo-red)]/20 flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-[var(--duo-red)]" />
+            </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-[var(--duo-red)]">
+              <p className="font-bold text-[var(--duo-red)] text-sm">
                 Còn nợ học phí
               </p>
-              <p className="text-xs text-[var(--duo-red)]/80">{debt}</p>
+              <p className="text-xs text-[var(--duo-red)]/70">
+                {tuition?.tongConNo}
+              </p>
             </div>
+            <ChevronRight className="w-5 h-5 text-[var(--duo-red)]" />
           </div>
         )}
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
+        {/* GPA Hero Card */}
+        <div className="card-3d p-4 bg-gradient-to-br from-[var(--duo-blue)]/10 to-[var(--duo-purple)]/10">
+          <div className="flex items-center gap-4">
+            {/* GPA Circle */}
+            <div className="relative w-20 h-20">
+              <svg className="w-20 h-20 -rotate-90" viewBox="0 0 36 36">
+                <path
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke="var(--secondary)"
+                  strokeWidth="3"
+                />
+                <path
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke={getGpaColor(gpa4)}
+                  strokeWidth="3"
+                  strokeDasharray={`${(gpa4 / 4) * 100}, 100`}
+                  strokeLinecap="round"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xl font-bold text-foreground">
+                  {gpa4.toFixed(2)}
+                </span>
+                <span className="text-[8px] text-[var(--muted-foreground)]">
+                  GPA
+                </span>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center gap-2">
+                <Trophy
+                  className="w-4 h-4"
+                  style={{ color: getGpaColor(gpa4) }}
+                />
+                <span
+                  className="font-bold text-sm"
+                  style={{ color: getGpaColor(gpa4) }}
+                >
+                  {getGpaLabel(gpa4)}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <Star className="w-3.5 h-3.5 text-[var(--duo-yellow)]" />
+                  <span className="text-[var(--muted-foreground)]">Hệ 10:</span>
+                  <span className="font-bold text-foreground">{gpa10}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5 text-[var(--duo-green)]" />
+                  <span className="text-[var(--muted-foreground)]">
+                    Tín chỉ:
+                  </span>
+                  <span className="font-bold text-foreground">
+                    {totalCredits}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-3 gap-2">
           {/* Progress */}
-          <div className="card-3d p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <Target className="w-4 h-4 text-[var(--duo-purple)]" />
-              <span className="text-xs font-semibold text-foreground">
-                Tiến độ CTĐT
-              </span>
+          <div className="card-3d p-3 text-center">
+            <div className="relative w-12 h-12 mx-auto mb-1">
+              <svg className="w-12 h-12 -rotate-90" viewBox="0 0 36 36">
+                <path
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke="var(--secondary)"
+                  strokeWidth="4"
+                />
+                <path
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  fill="none"
+                  stroke="var(--duo-purple)"
+                  strokeWidth="4"
+                  strokeDasharray={`${progressPercent}, 100`}
+                  strokeLinecap="round"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-xs font-bold text-[var(--duo-purple)]">
+                  {progressPercent}%
+                </span>
+              </div>
             </div>
-            <div className="flex items-end justify-between">
-              <span className="text-2xl font-bold text-[var(--duo-purple)]">
-                {curriculumProgress}
-              </span>
-            </div>
-            <div className="mt-2 h-2 bg-[var(--secondary)] rounded-full overflow-hidden">
-              <div
-                className="h-full bg-[var(--duo-purple)] rounded-full transition-all"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
+            <p className="text-[10px] font-semibold text-foreground">CTĐT</p>
           </div>
 
-          {/* Current Week */}
-          <div className="card-3d p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-[var(--duo-green)]" />
-              <span className="text-xs font-semibold text-foreground">
-                Tuần học
-              </span>
+          {/* Week */}
+          <div className="card-3d p-3 text-center">
+            <div className="w-12 h-12 mx-auto mb-1 rounded-xl bg-[var(--duo-green)]/20 flex items-center justify-center">
+              <Flame className="w-6 h-6 text-[var(--duo-green)]" />
             </div>
-            <div className="flex items-end justify-between">
-              <span className="text-2xl font-bold text-[var(--duo-green)]">
-                {currentWeekNum || "--"}
-              </span>
-              <span className="text-xs text-[var(--muted-foreground)]">
-                /{currentSchedule?.danhSachTuan?.length || "--"}
-              </span>
-            </div>
-            <p className="text-[10px] text-[var(--muted-foreground)] mt-1">
-              {semesters?.danhSachHocKy?.find(
-                (s) => s.maHocKy === semesters.hocKyHienTai
-              )?.tenHocKy || ""}
+            <p className="text-lg font-bold text-[var(--duo-green)]">
+              {currentWeekNum || "--"}
             </p>
-          </div>
-
-          {/* Semester GPA */}
-          <div className="card-3d p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <Award className="w-4 h-4 text-[var(--duo-yellow)]" />
-              <span className="text-xs font-semibold text-foreground">
-                Điểm HK gần nhất
-              </span>
-            </div>
-            <div className="flex items-end gap-2">
-              <span className="text-2xl font-bold text-[var(--duo-yellow)]">
-                {semesterGpa}
-              </span>
-              <span className="text-xs text-[var(--muted-foreground)] mb-1">
-                / 4.0
-              </span>
-            </div>
-            <p className="text-[10px] text-[var(--muted-foreground)] mt-1">
-              {latestSemester?.tinChiDatHK || 0} tín chỉ đạt
+            <p className="text-[10px] text-[var(--muted-foreground)]">
+              Tuần học
             </p>
           </div>
 
           {/* Notifications */}
-          <div className="card-3d p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <Bell className="w-4 h-4 text-[var(--duo-orange)]" />
-              <span className="text-xs font-semibold text-foreground">
-                Thông báo
-              </span>
+          <div className="card-3d p-3 text-center relative">
+            <div className="w-12 h-12 mx-auto mb-1 rounded-xl bg-[var(--duo-orange)]/20 flex items-center justify-center">
+              <GraduationCap className="w-6 h-6 text-[var(--duo-orange)]" />
             </div>
-            <div className="flex items-end justify-between">
-              <span className="text-2xl font-bold text-[var(--duo-orange)]">
-                {unreadCount}
-              </span>
-              <span className="text-xs text-[var(--muted-foreground)]">
-                chưa đọc
-              </span>
-            </div>
-            <p className="text-[10px] text-[var(--muted-foreground)] mt-1">
-              Tổng: {notifications?.danhSachThongBao?.length || 0} thông báo
+            <p className="text-lg font-bold text-[var(--duo-orange)]">
+              {unreadCount}
             </p>
+            <p className="text-[10px] text-[var(--muted-foreground)]">
+              Thông báo
+            </p>
+            {unreadCount > 0 && (
+              <span className="absolute top-2 right-2 w-2 h-2 bg-[var(--duo-red)] rounded-full" />
+            )}
           </div>
         </div>
 
-        {/* Today's Schedule */}
-        <div className="mb-4">
+        {/* Semester Stats */}
+        <div className="card-3d p-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold text-foreground">
+              Học kỳ gần nhất
+            </span>
+            <span className="text-[10px] text-[var(--muted-foreground)]">
+              {latestSemester?.tenHocKy || "--"}
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 bg-[var(--secondary)] rounded-full h-2 overflow-hidden">
+              <div
+                className="h-full bg-[var(--duo-yellow)] rounded-full transition-all"
+                style={{ width: `${(parseFloat(semesterGpa) / 4) * 100}%` }}
+              />
+            </div>
+            <span className="text-sm font-bold text-[var(--duo-yellow)]">
+              {semesterGpa}
+            </span>
+          </div>
+          <p className="text-[10px] text-[var(--muted-foreground)] mt-1">
+            {latestSemester?.tinChiDatHK || 0} tín chỉ đạt trong kỳ
+          </p>
+        </div>
+
+        {/* Today Schedule */}
+        <div>
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[var(--duo-green)]/20 flex items-center justify-center">
-                <span className="text-xs font-bold text-[var(--duo-green)]">
-                  {getTodayName()}
-                </span>
-              </div>
-              <div>
-                <h2 className="font-bold text-foreground text-sm">Hôm nay</h2>
-                <p className="text-[10px] text-[var(--muted-foreground)]">
-                  {formatDate()} • {todaySchedule.length} môn học
-                </p>
-              </div>
+              <Calendar className="w-4 h-4 text-[var(--duo-green)]" />
+              <span className="font-bold text-foreground text-sm">
+                Lịch học hôm nay
+              </span>
             </div>
+            <span className="text-[10px] text-[var(--muted-foreground)]">
+              {getTodayStr()}
+            </span>
           </div>
 
           {todaySchedule.length === 0 ? (
-            <div className="card-3d p-4 text-center">
-              <p className="font-semibold text-[var(--duo-green)]">
-                🎉 Không có lịch học!
+            <div className="card-3d p-6 text-center">
+              <div className="text-4xl mb-2">🎉</div>
+              <p className="font-bold text-[var(--duo-green)]">
+                Không có lịch học!
               </p>
               <p className="text-xs text-[var(--muted-foreground)]">
                 Hôm nay bạn được nghỉ ngơi
@@ -338,26 +367,26 @@ function TvuDashboard() {
           ) : (
             <div className="space-y-2">
               {todaySchedule.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="card-3d p-3 flex items-center gap-3"
-                  style={{ borderLeft: "3px solid var(--duo-green)" }}
-                >
-                  <div className="w-9 h-9 rounded-lg bg-[var(--duo-green)]/20 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xs font-bold text-[var(--duo-green)]">
-                      T{item.tietBatDau}
+                <div key={idx} className="card-3d p-3 flex items-center gap-3">
+                  <div
+                    className="w-11 h-11 rounded-xl flex flex-col items-center justify-center"
+                    style={{ background: "var(--duo-green)", color: "white" }}
+                  >
+                    <span className="text-[10px] font-medium">Tiết</span>
+                    <span className="text-sm font-bold leading-none">
+                      {item.tietBatDau}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-foreground text-sm truncate">
+                    <p className="font-bold text-foreground text-sm truncate">
                       {item.tenMon}
                     </p>
-                    <div className="flex items-center gap-2 mt-0.5 text-[10px] text-[var(--muted-foreground)]">
-                      <span className="flex items-center gap-0.5">
+                    <div className="flex items-center gap-3 mt-0.5">
+                      <span className="flex items-center gap-1 text-[10px] text-[var(--muted-foreground)]">
                         <Clock className="w-3 h-3" />
                         {item.tietBatDau}-{item.tietBatDau + item.soTiet - 1}
                       </span>
-                      <span className="flex items-center gap-0.5">
+                      <span className="flex items-center gap-1 text-[10px] text-[var(--muted-foreground)]">
                         <MapPin className="w-3 h-3" />
                         {item.phong}
                       </span>

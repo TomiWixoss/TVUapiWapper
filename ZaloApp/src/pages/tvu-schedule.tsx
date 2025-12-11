@@ -4,7 +4,6 @@
 import { Page, useNavigate } from "zmp-ui";
 import { useEffect, useState, useRef } from "react";
 import {
-  ArrowLeft,
   Calendar,
   Clock,
   MapPin,
@@ -118,29 +117,21 @@ function TvuSchedulePage() {
       )}
 
       {/* Header */}
-      <div className="pt-16 pb-4 px-4 bg-gradient-to-r from-[var(--duo-green)] to-[var(--duo-blue)]">
-        <div className="flex items-center gap-3 mb-4">
+      <div className="pt-14 pb-4 px-4 bg-gradient-to-r from-[var(--duo-green)] to-[var(--duo-blue)]">
+        <div className="mb-4">
+          <h1 className="font-bold text-xl text-white">Thời khóa biểu</h1>
+          {/* Semester Picker */}
           <button
-            onClick={() => navigate("/tvu")}
-            className="btn-back-3d w-10 h-10 flex items-center justify-center"
+            onClick={() => setShowSemesterPicker(!showSemesterPicker)}
+            className="flex items-center gap-1 text-white/90 text-sm mt-1"
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <span>
+              {semesters?.danhSachHocKy?.find(
+                (s) => s.maHocKy === selectedSemester
+              )?.tenHocKy || "Chọn học kỳ"}
+            </span>
+            <ChevronDown className="w-4 h-4" />
           </button>
-          <div className="flex-1">
-            <h1 className="font-bold text-xl text-white">Thời khóa biểu</h1>
-            {/* Semester Picker */}
-            <button
-              onClick={() => setShowSemesterPicker(!showSemesterPicker)}
-              className="flex items-center gap-1 text-white/90 text-sm mt-1"
-            >
-              <span>
-                {semesters?.danhSachHocKy?.find(
-                  (s) => s.maHocKy === selectedSemester
-                )?.tenHocKy || "Chọn học kỳ"}
-              </span>
-              <ChevronDown className="w-4 h-4" />
-            </button>
-          </div>
         </div>
 
         {/* Semester Dropdown */}
