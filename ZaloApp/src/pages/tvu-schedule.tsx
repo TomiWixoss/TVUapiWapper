@@ -24,7 +24,6 @@ function TvuSchedulePage() {
     currentSchedule,
     isLoading,
     loadingAction,
-    fetchSemesters,
     fetchSchedule,
   } = useTvuStore();
   const [selectedWeek, setSelectedWeek] = useState(0);
@@ -37,10 +36,7 @@ function TvuSchedulePage() {
       navigate("/tvu-login");
       return;
     }
-    if (!semesters) {
-      fetchSemesters();
-    }
-  }, [isLoggedIn, semesters, fetchSemesters, navigate]);
+  }, [isLoggedIn, navigate]);
 
   // Set default semester when semesters loaded
   useEffect(() => {
@@ -49,13 +45,14 @@ function TvuSchedulePage() {
     }
   }, [semesters, selectedSemester]);
 
-  // Fetch schedule when semester changes
-  useEffect(() => {
-    if (selectedSemester && semesters) {
-      hasInitialized.current = false;
-      fetchSchedule(selectedSemester);
-    }
-  }, [selectedSemester, semesters, fetchSchedule]);
+  // Fetch schedule only when semester changes (user action)
+  const handleSemesterChange = (semesterId: number) => {
+    setSelectedSemester(semesterId);
+    setShowSemesterPicker(false);
+    setSelectedWeek(0);
+    hasInitialized.current = false;
+    fetchSchedule(semesterId);
+  };
 
   // Find current week - chỉ chạy 1 lần khi schedule load xong
   useEffect(() => {
@@ -152,11 +149,7 @@ function TvuSchedulePage() {
             {semesters.danhSachHocKy.map((sem) => (
               <button
                 key={sem.maHocKy}
-                onClick={() => {
-                  setSelectedSemester(sem.maHocKy);
-                  setShowSemesterPicker(false);
-                  setSelectedWeek(0);
-                }}
+                onClick={() => handleSemesterChange(sem.maHocKy)}
                 className={`w-full text-left px-3 py-2 rounded-lg text-sm ${
                   selectedSemester === sem.maHocKy
                     ? "bg-white/30 text-white font-bold"

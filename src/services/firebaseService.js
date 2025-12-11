@@ -90,6 +90,16 @@ async function processCommand(commandId, commandData) {
       `[Firebase] ✓ Command ${commandId} completed:`,
       result.success ? "success" : "error"
     );
+
+    // Auto-delete command after 5 seconds
+    setTimeout(async () => {
+      try {
+        await commandRef.remove();
+        console.log(`[Firebase] 🗑️ Command ${commandId} deleted`);
+      } catch (e) {
+        console.error(`[Firebase] Failed to delete command: ${e.message}`);
+      }
+    }, 5000);
   } catch (error) {
     console.error(`[Firebase] ✗ Command ${commandId} failed:`, error.message);
 
@@ -101,6 +111,16 @@ async function processCommand(commandId, commandData) {
       },
       completedAt: admin.database.ServerValue.TIMESTAMP,
     });
+
+    // Auto-delete error command after 5 seconds
+    setTimeout(async () => {
+      try {
+        await commandRef.remove();
+        console.log(`[Firebase] 🗑️ Command ${commandId} deleted`);
+      } catch (e) {
+        console.error(`[Firebase] Failed to delete command: ${e.message}`);
+      }
+    }, 5000);
   }
 }
 

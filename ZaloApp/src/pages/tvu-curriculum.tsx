@@ -16,19 +16,15 @@ import { useTvuStore } from "@/stores/tvu-store";
 
 function TvuCurriculumPage() {
   const navigate = useNavigate();
-  const { isLoggedIn, curriculum, isLoading, loadingAction, fetchCurriculum } =
-    useTvuStore();
+  const { isLoggedIn, curriculum, isLoading, loadingAction } = useTvuStore();
   const [expandedSemester, setExpandedSemester] = useState<number | null>(null);
 
   useEffect(() => {
     if (!isLoggedIn) {
       navigate("/tvu-login");
-      return;
     }
-    if (!curriculum) {
-      fetchCurriculum();
-    }
-  }, [isLoggedIn, curriculum, fetchCurriculum, navigate]);
+  }, [isLoggedIn, navigate]);
+  // Data được cache - không tự động fetch
 
   return (
     <Page className="bg-background min-h-screen">

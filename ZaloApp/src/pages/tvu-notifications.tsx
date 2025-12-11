@@ -30,12 +30,9 @@ function TvuNotificationsPage() {
   useEffect(() => {
     if (!isLoggedIn) {
       navigate("/tvu-login");
-      return;
     }
-    if (!notifications) {
-      fetchNotifications(30);
-    }
-  }, [isLoggedIn, notifications, fetchNotifications, navigate]);
+  }, [isLoggedIn, navigate]);
+  // Data được cache - không tự động fetch
 
   const formatDate = (dateStr: string) => {
     try {

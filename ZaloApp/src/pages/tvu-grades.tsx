@@ -15,19 +15,15 @@ import { useTvuStore } from "@/stores/tvu-store";
 
 function TvuGradesPage() {
   const navigate = useNavigate();
-  const { isLoggedIn, grades, isLoading, loadingAction, fetchGrades } =
-    useTvuStore();
+  const { isLoggedIn, grades, isLoading, loadingAction } = useTvuStore();
   const [expandedSemester, setExpandedSemester] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoggedIn) {
       navigate("/tvu-login");
-      return;
     }
-    if (!grades) {
-      fetchGrades();
-    }
-  }, [isLoggedIn, grades, fetchGrades, navigate]);
+  }, [isLoggedIn, navigate]);
+  // Data được cache - không tự động fetch
 
   // Latest semester for summary
   const latestSemester = grades?.danhSachHocKy?.[0];

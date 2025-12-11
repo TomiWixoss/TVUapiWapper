@@ -14,18 +14,14 @@ import { useTvuStore } from "@/stores/tvu-store";
 
 function TvuTuitionPage() {
   const navigate = useNavigate();
-  const { isLoggedIn, tuition, isLoading, loadingAction, fetchTuition } =
-    useTvuStore();
+  const { isLoggedIn, tuition, isLoading, loadingAction } = useTvuStore();
 
   useEffect(() => {
     if (!isLoggedIn) {
       navigate("/tvu-login");
-      return;
     }
-    if (!tuition) {
-      fetchTuition();
-    }
-  }, [isLoggedIn, tuition, fetchTuition, navigate]);
+  }, [isLoggedIn, navigate]);
+  // Data được cache - không tự động fetch
 
   const hasDebt = (tuition?.tongConNoRaw || 0) > 0;
 

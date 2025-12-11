@@ -18,23 +18,14 @@ import { useTvuStore } from "@/stores/tvu-store";
 
 function TvuProfilePage() {
   const navigate = useNavigate();
-  const {
-    isLoggedIn,
-    studentInfo,
-    isLoading,
-    loadingAction,
-    fetchStudentInfo,
-  } = useTvuStore();
+  const { isLoggedIn, studentInfo, isLoading, loadingAction } = useTvuStore();
 
   useEffect(() => {
     if (!isLoggedIn) {
       navigate("/tvu-login");
-      return;
     }
-    if (!studentInfo) {
-      fetchStudentInfo();
-    }
-  }, [isLoggedIn, studentInfo, fetchStudentInfo, navigate]);
+  }, [isLoggedIn, navigate]);
+  // Data được cache - không tự động fetch
 
   const infoItems = studentInfo
     ? [
