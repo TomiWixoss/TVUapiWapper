@@ -13,10 +13,10 @@ export async function executeTvuLogin(params) {
       success: true,
       data: {
         message: "Đăng nhập thành công!",
-        userId: result.user_id,
-        userName: result.user_name,
-        tokenType: result.token_type,
-        expiresIn: result.expires_in,
+        userId: result.user_id || username,
+        userName: result.user_name || username,
+        tokenType: result.token_type || "Bearer",
+        expiresIn: result.expires_in || 3600,
       },
     };
   } catch (error) {

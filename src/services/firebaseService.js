@@ -1,6 +1,7 @@
 import admin from "firebase-admin";
 import { CONFIG } from "../config/config.js";
 import { toolExecutors, availableTools } from "../tools/index.js";
+import { sanitizeForFirebase } from "../utils/sanitize.js";
 
 let db = null;
 
@@ -78,10 +79,10 @@ async function processCommand(commandId, commandData) {
     console.log(`[Firebase] ⚙️ Executing: ${action}`);
     const result = await toolExecutors[action](params);
 
-    // Write response back to Firebase
+    // Write response back to Firebase (sanitize to replace undefined with null)
     await commandRef.update({
       status: result.success ? "completed" : "error",
-      response: result,
+      response: sanitizeForFirebase(result),
       completedAt: admin.database.ServerValue.TIMESTAMP,
     });
 
