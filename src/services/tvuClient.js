@@ -107,12 +107,22 @@ export async function tvuRequest(
   const client = createAuthenticatedClient(userId);
   const path = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
 
-  const data = await client
-    .post(path, {
-      json: body,
-      headers: extraHeaders,
-    })
-    .json();
+  try {
+    const data = await client
+      .post(path, {
+        json: body,
+        headers: extraHeaders,
+      })
+      .json();
 
-  return data;
+    return data;
+  } catch (error) {
+    // Log chi tiết lỗi
+    console.error(`[TVU] Request failed: ${endpoint}`, error.message);
+    if (error.response) {
+      const text = await error.response.text().catch(() => "");
+      console.error(`[TVU] Response:`, text);
+    }
+    throw error;
+  }
 }

@@ -47,8 +47,8 @@ function TvuNotificationsPage() {
 
   return (
     <Page className="bg-background min-h-screen">
-      {/* Loading */}
-      {isLoading && (
+      {/* Loading - chỉ hiện khi chưa có data */}
+      {isLoading && !notifications && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div className="bg-[var(--card)] rounded-2xl p-6 flex flex-col items-center gap-3">
             <Loader2 className="w-10 h-10 text-[var(--duo-orange)] animate-spin" />

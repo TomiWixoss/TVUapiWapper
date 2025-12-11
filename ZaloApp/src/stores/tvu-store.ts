@@ -26,6 +26,7 @@ interface TvuState {
   isLoggedIn: boolean;
   userId: string | null;
   userName: string | null;
+  password: string | null; // Lưu để auto re-login khi token hết hạn
 
   // Data
   studentInfo: TvuStudentData | null;
@@ -44,6 +45,7 @@ interface TvuState {
   // Actions
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
+  ensureLoggedIn: () => Promise<boolean>;
   fetchStudentInfo: () => Promise<void>;
   fetchSemesters: () => Promise<void>;
   fetchSchedule: (hocKy?: number) => Promise<void>;
@@ -62,6 +64,7 @@ export const useTvuStore = create<TvuState>()(
       isLoggedIn: false,
       userId: null,
       userName: null,
+      password: null,
       studentInfo: null,
       semesters: null,
       currentSchedule: null,
@@ -87,6 +90,7 @@ export const useTvuStore = create<TvuState>()(
             isLoggedIn: true,
             userId: username,
             userName: result.data.userName,
+            password: password, // Lưu để auto re-login
             isLoading: false,
             loadingAction: null,
           });
@@ -106,6 +110,7 @@ export const useTvuStore = create<TvuState>()(
           isLoggedIn: false,
           userId: null,
           userName: null,
+          password: null,
           studentInfo: null,
           semesters: null,
           currentSchedule: null,
@@ -115,6 +120,16 @@ export const useTvuStore = create<TvuState>()(
           notifications: null,
           error: null,
         });
+      },
+
+      // Auto re-login nếu token hết hạn
+      ensureLoggedIn: async () => {
+        const { userId, password, isLoggedIn } = get();
+        if (!isLoggedIn || !userId || !password) return false;
+
+        // Gửi login request để refresh token trên backend
+        const result = await tvuLogin(userId, password);
+        return result.success;
       },
 
       fetchStudentInfo: async () => {
@@ -259,12 +274,17 @@ export const useTvuStore = create<TvuState>()(
 
       fetchAllData: async () => {
         const {
+          ensureLoggedIn,
           fetchStudentInfo,
           fetchSemesters,
           fetchGrades,
           fetchTuition,
           fetchNotifications,
         } = get();
+
+        // Đảm bảo đã login (refresh token nếu cần)
+        set({ isLoading: true, loadingAction: "Đang kết nối..." });
+        await ensureLoggedIn();
 
         // Fetch in parallel
         await Promise.all([
@@ -284,6 +304,7 @@ export const useTvuStore = create<TvuState>()(
         isLoggedIn: state.isLoggedIn,
         userId: state.userId,
         userName: state.userName,
+        password: state.password, // Lưu để auto re-login
       }),
     }
   )
