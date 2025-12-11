@@ -5,7 +5,6 @@ import { Page, useNavigate } from "zmp-ui";
 import { useEffect, useMemo } from "react";
 import {
   GraduationCap,
-  LogOut,
   Loader2,
   RefreshCw,
   Clock,
@@ -32,7 +31,6 @@ function TvuDashboard() {
     notifications,
     isLoading,
     loadingAction,
-    logout,
     fetchAllData,
   } = useTvuStore();
 
@@ -49,11 +47,6 @@ function TvuDashboard() {
       fetchAllData();
     }
   }, [isLoggedIn, studentInfo, isLoading, fetchAllData]);
-
-  const handleLogout = () => {
-    logout();
-    navigate("/tvu-login");
-  };
 
   // Calculate stats
   const latestSemester = grades?.danhSachHocKy?.[0];
@@ -375,17 +368,6 @@ function TvuDashboard() {
             </div>
           )}
         </div>
-
-        {/* Logout */}
-        <button
-          onClick={handleLogout}
-          className="w-full p-3 rounded-xl bg-[var(--secondary)] flex items-center justify-center gap-2"
-        >
-          <LogOut className="w-4 h-4 text-[var(--duo-red)]" />
-          <span className="text-sm font-semibold text-[var(--duo-red)]">
-            Đăng xuất
-          </span>
-        </button>
       </div>
     </Page>
   );
