@@ -2,17 +2,24 @@
  * TVU Login Page - Đăng nhập cổng sinh viên TVU
  */
 import { Page, useNavigate } from "zmp-ui";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GraduationCap, User, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useTvuStore } from "@/stores/tvu-store";
 
 function TvuLoginPage() {
   const navigate = useNavigate();
-  const { login, isLoading, error, clearError } = useTvuStore();
+  const { login, isLoading, error, clearError, isLoggedIn } = useTvuStore();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  // Auto redirect nếu đã login
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/tvu");
+    }
+  }, [isLoggedIn, navigate]);
 
   const handleLogin = async () => {
     if (!username.trim() || !password.trim()) return;
@@ -122,16 +129,6 @@ function TvuLoginPage() {
             Sử dụng tài khoản cổng thông tin sinh viên TVU
           </p>
         </div>
-      </div>
-
-      {/* Back to Home */}
-      <div className="px-6">
-        <button
-          onClick={() => navigate("/")}
-          className="w-full py-3 rounded-xl bg-[var(--secondary)] text-[var(--muted-foreground)] font-semibold"
-        >
-          Quay lại trang chủ
-        </button>
       </div>
     </Page>
   );
