@@ -1,5 +1,4 @@
 import admin from "firebase-admin";
-import { readFileSync } from "fs";
 import { CONFIG } from "../config/config.js";
 import { toolExecutors, availableTools } from "../tools/index.js";
 
@@ -7,9 +6,13 @@ let db = null;
 
 export function initFirebase() {
   try {
-    const serviceAccount = JSON.parse(
-      readFileSync(CONFIG.firebase.serviceAccountPath, "utf8")
-    );
+    const serviceAccount = CONFIG.firebase.serviceAccount;
+
+    if (!serviceAccount) {
+      throw new Error(
+        "FIREBASE_SERVICE_ACCOUNT_JSON không được cấu hình trong .env"
+      );
+    }
 
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
@@ -18,6 +21,7 @@ export function initFirebase() {
 
     db = admin.database();
     console.log("[Firebase] ✓ Initialized successfully");
+    console.log("[Firebase] 📍 Database URL:", CONFIG.firebase.databaseURL);
     return db;
   } catch (error) {
     console.error("[Firebase] ✗ Init failed:", error.message);
